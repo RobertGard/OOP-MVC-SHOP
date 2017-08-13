@@ -31,6 +31,9 @@ class Router {
         foreach ($this->routes as $itemKey => $itemValue){
             //Проверка на совпадение ключей из массива с URI данными
             if(preg_match("~$itemKey~", $uri)){
+                
+                $itemValue = preg_replace("~$itemKey~", $itemValue, $uri);
+
                 //Разбиваем путь-строку и закидываем в массив
                 $segments = explode("/",$itemValue);
                 
@@ -45,10 +48,13 @@ class Router {
                 if(file_exists($controllerFile)){
                     include_once $controllerFile;
                 }
+
+                //То что осталось - это параметры 
+                $parameters = $segments;
                 
                 //Создаём объект класса контроллера и вызываем нужный метод-action
                 $controllerObject = new $controllerName();
-                $key = $controllerObject->$actionName();
+                $key = $controllerObject->$actionName($parameters);
                 
                 //При удачном нахождении выбросит из прокрутки массива путей 
                 if($key !== FALSE){
